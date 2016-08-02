@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "ShadersTool.h"
 using namespace glm;
 GLFWwindow *window;
@@ -50,27 +51,47 @@ int main()
 
     GLuint programID = LoadShaders("/home/slavickkuzmin/lessons/gl3_0/simpleVertex.glsl",
                                    "/home/slavickkuzmin/lessons/gl3_0/simpleFragment.glsl");
+
+
+
+
+
+    //Получити хендл змінної в шейдері тільки один рах при ініціалізації
+    GLuint MatrixID = glGetUniformLocation(programID, "MVP");
+
+    //Проекційна матриця: 45 градусів поле обзора, 4:3 відношення сторін, діапазон 0.1 юніт -- 100 юнітів
+    glm::mat4 Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.f);
+    //маттриця камери
+    glm::mat4 View = glm::lookAt(glm::vec3(4,3,3),//Камера знаходиться в ствітових координатах (4.3.3)
+                                 glm::vec3(0,0,0),//І направлена в начало координат
+                                 glm::vec3(0,1,0) //Голова знаходиться зверху
+    );
+    //Матриця моделі: одинична матриця(модель знаходиться в початку координат)
+    glm::mat4 Model = glm::mat4(1.f); //Індивідуально для кожної моделі
+    //Ітогова матриця проекції являється результатом множення цих матриць
+    glm::mat4 MVP = Projection * View * Model;
+
     //
     static const GLfloat g_vertex_buffer_data[] = {
-           -1.f,  -1.f,  0.f,
+            -1.f,  -1.f,  0.f,
             1.f,  -1.f, 0.f,
             0.f,   1.f,  0.f
     };
+    static const GLushort g_element_buffer_data[] = { 0, 1, 2 };
+    //передати наші трансформації в тікущий шейдер
+    //для кожної моделі, яку ми вводимо в MVP буде різним
 
     GLuint vertexbuffer;
     glGenBuffers(1, &vertexbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-
-
-
-
     //main cycle
     do
     {
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(programID);
+        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
         glVertexAttribPointer(0,        //Шейдери
