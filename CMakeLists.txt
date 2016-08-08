@@ -3,5 +3,5 @@ project(gl3_0)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -lGL -lGLEW -lglfw")
 
-set(SOURCE_FILES main.cpp ShadersTool.cpp ShadersTool.h texture.cpp texture.h)
+set(SOURCE_FILES main.cpp ShadersTool.cpp ShadersTool.h texture.cpp texture.h controls.cpp controls.h)
 add_executable(gl3_0 ${SOURCE_FILES})

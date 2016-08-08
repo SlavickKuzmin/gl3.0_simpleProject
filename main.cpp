@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "ShadersTool.h"
 #include "texture.h"
+#include "controls.h"
 
 using namespace glm;
 GLFWwindow *window;
@@ -43,6 +44,14 @@ int main()
     }
 
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+    //
+    // Hide the mouse and enable unlimited mouvement
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    // Set the mouse at the center of the screen
+    glfwPollEvents();
+    glfwSetCursorPos(window, 1024/2, 768/2);
+    //
     glClearColor(0.f, 0.f, 0.4f, 0.f);
 
     glEnable(GL_DEPTH_TEST);
@@ -217,6 +226,18 @@ int main()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(programID);
+        //
+        // Compute the MVP matrix from keyboard and mouse input
+        computeMatricesFromInputs();
+        glm::mat4 ProjectionMatrix = getProjectionMatrix();
+        glm::mat4 ViewMatrix = getViewMatrix();
+        glm::mat4 ModelMatrix = glm::mat4(1.0);
+        glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+
+        // Send our transformation to the currently bound shader,
+        // in the "MVP" uniform
+        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+        //
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
         //
         glActiveTexture(GL_TEXTURE0);
