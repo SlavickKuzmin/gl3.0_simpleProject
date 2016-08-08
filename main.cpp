@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "ShadersTool.h"
+#include "texture.h"
+
 using namespace glm;
 GLFWwindow *window;
 
@@ -72,7 +74,9 @@ int main()
     glm::mat4 Model = glm::mat4(1.f); //Індивідуально для кожної моделі
     //Ітогова матриця проекції являється результатом множення цих матриць
     glm::mat4 MVP = Projection * View * Model;
-
+    //Textures
+    GLuint Texture = loadBMP_custom("/home/slavickkuzmin/ogl-OpenGL-tutorial_0015_33/tutorial05_textured_cube/uvtemplate.bmp");
+    GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
     //
     static const GLfloat g_vertex_buffer_data[] = {
             -1.0f,-1.0f,-1.0f,
@@ -151,6 +155,46 @@ int main()
             0.982f,  0.099f,  0.879f
     };
     static const GLushort g_element_buffer_data[] = { 0, 1, 2 };
+    //
+    static const GLfloat g_uv_buffer_data[] = {
+            0.000059f, 1.0f-0.000004f,
+            0.000103f, 1.0f-0.336048f,
+            0.335973f, 1.0f-0.335903f,
+            1.000023f, 1.0f-0.000013f,
+            0.667979f, 1.0f-0.335851f,
+            0.999958f, 1.0f-0.336064f,
+            0.667979f, 1.0f-0.335851f,
+            0.336024f, 1.0f-0.671877f,
+            0.667969f, 1.0f-0.671889f,
+            1.000023f, 1.0f-0.000013f,
+            0.668104f, 1.0f-0.000013f,
+            0.667979f, 1.0f-0.335851f,
+            0.000059f, 1.0f-0.000004f,
+            0.335973f, 1.0f-0.335903f,
+            0.336098f, 1.0f-0.000071f,
+            0.667979f, 1.0f-0.335851f,
+            0.335973f, 1.0f-0.335903f,
+            0.336024f, 1.0f-0.671877f,
+            1.000004f, 1.0f-0.671847f,
+            0.999958f, 1.0f-0.336064f,
+            0.667979f, 1.0f-0.335851f,
+            0.668104f, 1.0f-0.000013f,
+            0.335973f, 1.0f-0.335903f,
+            0.667979f, 1.0f-0.335851f,
+            0.335973f, 1.0f-0.335903f,
+            0.668104f, 1.0f-0.000013f,
+            0.336098f, 1.0f-0.000071f,
+            0.000103f, 1.0f-0.336048f,
+            0.000004f, 1.0f-0.671870f,
+            0.336024f, 1.0f-0.671877f,
+            0.000103f, 1.0f-0.336048f,
+            0.336024f, 1.0f-0.671877f,
+            0.335973f, 1.0f-0.335903f,
+            0.667969f, 1.0f-0.671889f,
+            1.000004f, 1.0f-0.671847f,
+            0.667979f, 1.0f-0.335851f
+    };
+    //
     //передати наші трансформації в тікущий шейдер
     //для кожної моделі, яку ми вводимо в MVP буде різним
 
@@ -162,7 +206,11 @@ int main()
     glGenBuffers(1, &colorbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
-
+    //texture
+    GLuint uvbuffer;
+    glGenBuffers(1, &uvbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data), g_uv_buffer_data, GL_STATIC_DRAW);
 
     //main cycle
     do
@@ -170,6 +218,12 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(programID);
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+        //
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, Texture);
+        // Set our "myTextureSampler" sampler to user Texture Unit 0
+        glUniform1i(TextureID, 0);
+        //
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
         glVertexAttribPointer(0,        //Шейдери
@@ -201,7 +255,9 @@ int main()
             glfwWindowShouldClose(window) == 0);
     // Cleanup VBO
     glDeleteBuffers(1, &vertexbuffer);
+    glDeleteBuffers(1, &uvbuffer);
     glDeleteBuffers(1, &colorbuffer);
+    glDeleteTextures(1, &TextureID);
     glDeleteVertexArrays(1, &VertexArrayID);
     glDeleteProgram(programID);
 
