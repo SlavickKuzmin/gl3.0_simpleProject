@@ -100,6 +100,6 @@ void computeMatricesFromInputs(){
 						   );
 
 	// For the next frame, the "last time" will be "now"
-    printf("h:%f v:%f\n", horizontalAngle, verticalAngle);
+   // printf("h:%f v:%f\n", horizontalAngle, verticalAngle);
 	lastTime = currentTime;
 }
