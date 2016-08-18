@@ -7,6 +7,8 @@
 #include "model.h"
 
 #include "Window.h"
+#include "Text2D.h"
+
 using namespace glm;
 
 
@@ -22,13 +24,16 @@ int main()
 
     //=============================================================================================
     //const char *name = "/home/slavickkuzmin/ogldev-source/Content/phoenix_ugv.md2";
-    //const char *name = "/home/slavickkuzmin/Downloads/temp/y82qajfpzeo0-FBX/b.obj";
+    //const char *name = "/home/slavickkuzmin/Downloads/temp/Darth_Sidious/ds.obj";
+    //const char *name = "/home/slavickkuzmin/Downloads/temp/Chinese house/ch.obj";
+    //const char *name = "/home/slavickkuzmin/Downloads/temp/ssjbcgosczr4-R0 1/RE 0 Main Hall/mh.obj";//cool
+    const char *name = "/home/slavickkuzmin/Downloads/temp/1y3ycdp6e3ao-FH/RE SM front hall/smh.obj";
     //const char *name = "/home/slavickkuzmin/Downloads/m3d/Old House 2/House.obj";
     //const char *name = "/home/slavickkuzmin/Downloads/m3d/untitled.obj";
     //LoadOBJModel *model = new LoadOBJModel(name, shader.ProgramID);
 
     Mesh* m_pMesh;
-    m_pMesh = new Mesh(shader.ProgramID);
+    m_pMesh = new Mesh(shader.ProgramID, 2.2f);
     m_pMesh->LoadMesh(name);
 
     //LoadOBJModel *model = new LoadOBJModel(name, shader.ProgramID);
@@ -47,10 +52,28 @@ int main()
     glm::mat4 ViewMatrix;
     glm::mat4 ModelMatrix = glm::mat4(1.0);
     glm::mat4 MVP;
+
+    initText2D( "/home/slavickkuzmin/lessons/gl3_0/Holstein.DDS" );
+    double lastTime = glfwGetTime();
+    int nbFrames = 0;
+    float FPS = 0.f;
+    char text[256];
     do
     {
+        //
+        double currentTime = glfwGetTime();
+        nbFrames++;
+        if ( currentTime - lastTime >= 1.0 ){ // If last prinf() was more than 1sec ago
+            // printf and reset
+            //printf("%f ms/frame\n", 1000.0/double(nbFrames));
+            FPS = 1000.0/double(nbFrames);
+            nbFrames = 0;
+            lastTime += 1.0;
+        }
+        //
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //
+        glUseProgram(shader.ProgramID);
         // Compute the MVP matrix from keyboard and mouse input
         wnd.computeMatricesFromInputs();
         ProjectionMatrix = wnd.getProjectionMatrix();
@@ -66,14 +89,20 @@ int main()
 
         glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
         //
-        //wnd.drawGrid();
+        wnd.drawGrid();
         glUseProgram(shader.ProgramID);
 
         m_pMesh->Render();
+
+        //
+        sprintf(text,"%.2f FPS", FPS );
+        printText2D(text, 10, 550, 20);
+        //
 
         glfwSwapBuffers(wnd.getWindow());
         glfwPollEvents();
 
     } while(glfwGetKey(wnd.getWindow(), GLFW_KEY_ESCAPE) != GLFW_PRESS &&
             glfwWindowShouldClose(wnd.getWindow()) == 0);
+    cleanupText2D();
 }

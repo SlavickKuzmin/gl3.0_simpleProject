@@ -8,7 +8,7 @@ Texture::Texture(GLenum TextureTarget, const std::string& FileName)
 }
 
 
-bool Texture::Load(GLuint programID)
+bool Texture::Load()
 {
     try {
         m_image.read(m_fileName);
@@ -18,27 +18,20 @@ bool Texture::Load(GLuint programID)
         std::cout << "Error loading texture '" << m_fileName << "': " << Error.what() << std::endl;
         return false;
     }
-    glUseProgram(programID);
-
-    GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
-
     glGenTextures(1, &m_textureObj);
     glBindTexture(m_textureTarget, m_textureObj);
-
-    glUniform1i(TextureID, 0);
 
     glTexImage2D(m_textureTarget, 0, GL_RGBA, m_image.columns(), m_image.rows(), 0, GL_RGBA, GL_UNSIGNED_BYTE, m_blob.data());
     glTexParameterf(m_textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(m_textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(m_textureTarget, 0);
 
-    glUniform1i(TextureID, 0);
     return true;
 }
 
-void Texture::Bind(GLenum TextureUnit, GLuint programID, GLuint TextureID)
+void Texture::Bind(GLenum TextureUnit, GLuint &programID)
 {
-    glUseProgram(programID);
+    TextureID  = glGetUniformLocation(programID, "myTextureSampler");
     glActiveTexture(TextureUnit);
     glBindTexture(m_textureTarget, m_textureObj);//m_textureObj = textureID
     // Set our "myTextureSampler" sampler to user Texture Unit 0

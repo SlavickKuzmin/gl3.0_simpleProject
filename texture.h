@@ -15,9 +15,9 @@ class Texture
 public:
     Texture(GLenum TextureTarget, const std::string& FileName);
 
-    bool Load(GLuint programID);
+    bool Load();
 
-    void Bind(GLenum TextureUnit, GLuint programID, GLuint TextureID);
+    void Bind(GLenum TextureUnit, GLuint &programID);
     GLuint m_textureObj;
 private:
     std::string m_fileName;
@@ -25,6 +25,8 @@ private:
 
     Magick::Image m_image;
     Magick::Blob m_blob;
+
+    GLuint TextureID;
 };
 
 
