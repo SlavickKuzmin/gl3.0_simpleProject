@@ -7,6 +7,13 @@
 
 #include <GL/gl.h>
 
-GLuint LoadShaders(const char *vertex_file_path, const char *fragment_file_path);
-
+class Shaders {
+public:
+    Shaders(const char *vertex_file_path, const char *fragment_file_path);
+    ~Shaders();
+    GLuint MatrixID;
+    GLuint ViewMatrixID;
+    GLuint ModelMatrixID;
+    GLuint ProgramID;
+};
 #endif //GL3_0_SHADERSTOOL_H
